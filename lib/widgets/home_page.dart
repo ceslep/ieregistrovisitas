@@ -60,11 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
             CachedNetworkImage(
               imageUrl: "https://app.iedeoccidente.com/escudoNuevo2.png",
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 1),
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -91,14 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                maxLines: 3,
+                maxLines: 2,
                 controller: _asuntoTextEditingController,
                 decoration:
                     const InputDecoration(labelText: 'Asunto de la visita'),
               ),
             ),
             const SizedBox(
-              height: 12,
+              height: 5,
             ),
             const SizedBox(height: 5),
             Padding(
