@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:ieregistrovisitas/widgets/rol_selector.dart';
+import 'package:ieregistrovisitas/widgets/salidas.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
@@ -28,28 +29,34 @@ class _MyHomePageState extends State<MyHomePage> {
   late FToast fToast;
   bool nombreValido = false;
   bool asuntoValido = false;
+  bool identificacionValida = false;
   bool guardando = false;
+  bool listando = false;
+  bool tipoVisitante = false;
+  final int caracteresIdentificacion = 5;
   final int caracteresNombres = 20;
   final int caracteresAsunto = 30;
   final TextEditingController _nombresTextEditingController =
       TextEditingController(text: '');
   final TextEditingController _asuntoTextEditingController =
       TextEditingController(text: '');
-  final TextEditingController _telefonoTextEditingController =
+  final TextEditingController _identificacionTextEditingController =
       TextEditingController(text: '');
   String fecha = DateFormat('yyyy-mm-dd').format(DateTime.now());
   String hora = DateFormat('hh:mm:ss').format(DateTime.now());
+  List<RegistroVisitas> listadoVisitas = [];
 
   RegistroVisitas registro = RegistroVisitas(
     fecha: "",
     hora: "",
     nombres: "",
     asunto: "",
-    telefono: "",
+    identificacion: "",
     tipoVisitante: "",
   );
   void onRolSelected(String value) {
     print(value);
+    tipoVisitante = true;
     registro.tipoVisitante = value;
     setState(() {});
   }
@@ -90,6 +97,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     guardando = false;
     setState(() {});
+  }
+
+  Future<List<RegistroVisitas>?> getListado() async {
+    setState(() => listando = true);
+    try {
+      final url = Uri.parse('$urlbase/getRegistroVisitas.php');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        List<dynamic> result = json.decode(response.body);
+        List<RegistroVisitas> registros =
+            result.map((l) => RegistroVisitas.fromJson(l)).toList();
+
+        setState(() {
+          listando = false;
+        });
+        return registros;
+      } else {
+        throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al obtener el listado: $e');
+      listando = false;
+      setState(() {});
+      return null;
+    }
   }
 
   _showToast() {
@@ -160,14 +192,59 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
         actions: [
-          IconButton(
+          ElevatedButton(
             onPressed: () {
               _nombresTextEditingController.text = "";
               _asuntoTextEditingController.text = "";
-              _telefonoTextEditingController.text = "";
+              _identificacionTextEditingController.text = "";
+              tipoVisitante = false;
+              identificacionValida = false;
+              nombreValido = false;
+              asuntoValido = false;
+              registro = RegistroVisitas(
+                fecha: "",
+                hora: "",
+                nombres: "",
+                asunto: "",
+                identificacion: "",
+                tipoVisitante: "",
+              );
             },
-            icon: const Icon(Icons.note_add_outlined),
+            child: const Icon(
+              Icons.note_add_outlined,
+              color: Colors.green,
+            ),
           ),
+          const SizedBox(
+            width: 5,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () async {
+                getListado().then((value) async {
+                  listadoVisitas = value!;
+                  for (var element in listadoVisitas) {
+                    print(element.identificacion);
+                  }
+                  var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Salidas(listadoVisitas: listadoVisitas),
+                    ),
+                  );
+                  print(result);
+                });
+              },
+              child: !listando
+                  ? const Icon(
+                      Icons.outbond,
+                      color: Colors.blue,
+                    )
+                  : const SpinKitCircle(color: Colors.black, size: 15),
+            ),
+          )
         ],
       ),
       body: SingleChildScrollView(
@@ -193,6 +270,32 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text('Hora: $hora'),
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TextField(
+                    onChanged: (value) {
+                      identificacionValida = value.length >= 5;
+                      setState(() => registro.identificacion = value);
+                    },
+                    controller: _identificacionTextEditingController,
+                    keyboardType:
+                        TextInputType.number, // Tipo de teclado numérico
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter
+                          .digitsOnly, // Permite solo números
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Identificación',
+                      errorText: !identificacionValida
+                          ? "la Identificación mínimo,  $caracteresIdentificacion caracteres"
+                          : "",
+                      errorBorder: OutlineInputBorder(
+                        borderSide: !identificacionValida
+                            ? const BorderSide(color: Colors.red)
+                            : const BorderSide(color: Colors.black),
+                      ),
+                    )),
               ),
               Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -257,21 +360,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: TextField(
-                  onChanged: (value) =>
-                      setState(() => registro.telefono = value),
-                  controller: _telefonoTextEditingController,
-                  decoration: const InputDecoration(labelText: 'Teléfono'),
-                  keyboardType:
-                      TextInputType.number, // Tipo de teclado numérico
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter
-                        .digitsOnly, // Permite solo números
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -280,7 +368,7 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: const CircleBorder(side: BorderSide()),
         backgroundColor: Colors.lightBlueAccent,
         onPressed: () async {
-          if (nombreValido && asuntoValido) {
+          if (nombreValido && asuntoValido && tipoVisitante) {
             _getDate();
             print(registro.toJson());
             await guardar();

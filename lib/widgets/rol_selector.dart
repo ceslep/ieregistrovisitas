@@ -10,8 +10,9 @@ class RolSelector extends StatefulWidget {
 }
 
 class _RolSelectorState extends State<RolSelector> {
-  String selectedRol = 'Padre de Familia';
+  String selectedRol = '';
   List<String> roles = [
+    '',
     'Padre de Familia',
     'Acudiente',
     'Vendedor',
