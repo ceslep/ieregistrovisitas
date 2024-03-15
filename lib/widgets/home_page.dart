@@ -29,6 +29,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool nombreValido = false;
   bool asuntoValido = false;
   bool guardando = false;
+  final int caracteresNombres = 20;
+  final int caracteresAsunto = 30;
   final TextEditingController _nombresTextEditingController =
       TextEditingController(text: '');
   final TextEditingController _asuntoTextEditingController =
@@ -47,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     tipoVisitante: "",
   );
   void onRolSelected(String value) {
+    print(value);
     registro.tipoVisitante = value;
     setState(() {});
   }
@@ -104,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
             width: 12.0,
           ),
           Text(
-            "Registro de Visita almacenado correctamente",
+            "Registrado",
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
           ),
         ],
@@ -136,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
             width: 12.0,
           ),
           Text(
-            "Debe completar la información",
+            "Complete la información",
             style: TextStyle(fontSize: 12, color: Colors.yellow),
           ),
         ],
@@ -167,106 +170,115 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 10),
-            CachedNetworkImage(
-              imageUrl: "https://app.iedeoccidente.com/escudoNuevo2.png",
-            ),
-            const SizedBox(height: 1),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(height: 10),
+              CachedNetworkImage(
+                imageUrl: "https://app.iedeoccidente.com/escudoNuevo2.png",
+              ),
+              const SizedBox(height: 1),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text('Fecha: $fecha'),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text('Hora: $hora'),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Text('Fecha: $fecha'),
+                child: TextField(
+                  onChanged: (value) {
+                    nombreValido = value.length >= 15;
+                    setState(() => registro.nombres = value);
+                  },
+                  controller: _nombresTextEditingController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                      labelText: 'Nombre del visitante',
+                      errorText: !nombreValido
+                          ? "Debe ingresar los nombres, Faltan ${caracteresNombres - _nombresTextEditingController.text.length} caracteres"
+                          : "",
+                      errorBorder: OutlineInputBorder(
+                        borderSide: !nombreValido
+                            ? const BorderSide(color: Colors.red)
+                            : const BorderSide(color: Colors.black),
+                      )),
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
+              Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Text('Hora: $hora'),
+                child: TextField(
+                  onChanged: (value) {
+                    asuntoValido = value.length >= 30;
+                    setState(() => registro.asunto = value);
+                  },
+                  maxLines: 2,
+                  controller: _asuntoTextEditingController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                      labelText: 'Asunto de la visita',
+                      labelStyle: TextStyle(
+                          color: !asuntoValido ? Colors.red : Colors.black),
+                      errorText: !asuntoValido
+                          ? "Debe ingresar el asunto, ${caracteresAsunto - _asuntoTextEditingController.text.length} caracteres"
+                          : "",
+                      errorBorder: OutlineInputBorder(
+                        borderSide: !asuntoValido
+                            ? const BorderSide(color: Colors.red)
+                            : const BorderSide(color: Colors.black),
+                      )),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextField(
-                onChanged: (value) {
-                  nombreValido = value.length >= 15;
-                  setState(() => registro.nombres = value);
-                },
-                controller: _nombresTextEditingController,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                    labelText: 'Nombre del visitante',
-                    errorText: !nombreValido
-                        ? "Debe ingresar los nombres, mínimo 15 caracteres"
-                        : "",
-                    errorBorder: OutlineInputBorder(
-                      borderSide: !nombreValido
-                          ? const BorderSide(color: Colors.red)
-                          : const BorderSide(color: Colors.black),
-                    )),
+              const SizedBox(
+                height: 5,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextField(
-                onChanged: (value) {
-                  asuntoValido = value.length >= 30;
-                  setState(() => registro.asunto = value);
-                },
-                maxLines: 2,
-                controller: _asuntoTextEditingController,
-                decoration: InputDecoration(
-                    labelText: 'Asunto de la visita',
-                    errorText: !asuntoValido
-                        ? "Debe ingresar el asunto, mínimo 30 caracteres"
-                        : "",
-                    errorBorder: OutlineInputBorder(
-                      borderSide: !asuntoValido
-                          ? const BorderSide(color: Colors.red)
-                          : const BorderSide(color: Colors.black),
-                    )),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Tipo de visitante'),
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            const SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextField(
-                onChanged: (value) => setState(() => registro.telefono = value),
-                controller: _telefonoTextEditingController,
-                decoration: const InputDecoration(labelText: 'Teléfono'),
-                keyboardType: TextInputType.number, // Tipo de teclado numérico
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Permite solo números
-                ],
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: RolSelector(onRolSelected: onRolSelected),
+                ),
               ),
-            ),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: Text('Tipo de visitante'),
+              const SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: TextField(
+                  onChanged: (value) =>
+                      setState(() => registro.telefono = value),
+                  controller: _telefonoTextEditingController,
+                  decoration: const InputDecoration(labelText: 'Teléfono'),
+                  keyboardType:
+                      TextInputType.number, // Tipo de teclado numérico
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Permite solo números
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: RolSelector(onRolSelected: onRolSelected),
-              ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(side: BorderSide()),
+        backgroundColor: Colors.lightBlueAccent,
         onPressed: () async {
           if (nombreValido && asuntoValido) {
             _getDate();

@@ -37,6 +37,8 @@ class _RolSelectorState extends State<RolSelector> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
+      alignment: Alignment.centerLeft,
+      dropdownColor: const Color.fromARGB(255, 247, 202, 255),
       value: selectedRol,
       items: roles.map((String value) {
         return DropdownMenuItem<String>(
