@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 const String urlbase = 'https://app.iedeoccidente.com';
 String decodeHtmlEntities(String text) {
@@ -173,28 +174,32 @@ class _SalidasState extends State<Salidas> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 5,
                         ),
-                        !guardando
-                            ? ElevatedButton(
-                                style: const ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        CircleBorder(
-                                            side: BorderSide(
-                                                style: BorderStyle.none))),
-                                    elevation: MaterialStatePropertyAll(10),
-                                    animationDuration:
-                                        Duration(milliseconds: 250)),
-                                onPressed: () async {
-                                  await guardarSalida(
-                                      widget.listadoVisitas[index].id);
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                                shape: MaterialStatePropertyAll(CircleBorder(
+                                    side: BorderSide(style: BorderStyle.none))),
+                                elevation: MaterialStatePropertyAll(10),
+                                animationDuration: Duration(milliseconds: 250)),
+                            onPressed: () async {
+                              widget.listadoVisitas[index].horaSalida =
+                                  DateFormat('hh:mm:ss').format(DateTime.now());
+                              setState(() {});
+                              await guardarSalida(
+                                  widget.listadoVisitas[index].id);
 
-                                  // ignore: use_build_context_synchronously
-                                  Navigator.pop(context);
-                                },
-                                child: const Icon(
-                                  Icons.save,
-                                  size: 25,
-                                ))
-                            : const SpinKitCircle(color: Colors.green)
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+                            },
+                            child: widget.listadoVisitas[index].horaSalida ==
+                                    '00:00:00'
+                                ? const Icon(
+                                    Icons.save,
+                                    size: 25,
+                                  )
+                                : const SpinKitCircle(
+                                    color: Colors.green,
+                                    size: 14,
+                                  ))
                       ],
                     ),
                   ),

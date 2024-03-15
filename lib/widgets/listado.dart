@@ -103,6 +103,23 @@ class _ListadoState extends State<Listado> {
                             )
                           ],
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          children: [
+                            const Text('Hora de Salida:'),
+                            Text(widget.listadoVisitas[index].horaSalida!,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      widget.listadoVisitas[index].horaSalida ==
+                                              "00:00:00"
+                                          ? Colors.redAccent
+                                          : Colors.green,
+                                ))
+                          ],
+                        ),
                       )
                     ],
                   ),
