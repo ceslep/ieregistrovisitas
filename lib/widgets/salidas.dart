@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 
 const String urlbase = 'https://app.iedeoccidente.com';
 String decodeHtmlEntities(String text) {
@@ -110,49 +109,66 @@ class _SalidasState extends State<Salidas> {
                   child: Card(
                     child: Row(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 3,
-                              child: Text(
-                                decodeHtmlEntities(
-                                    widget.listadoVisitas[index].nombres),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 3,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Text(
+                                    decodeHtmlEntities(
+                                      widget.listadoVisitas[index].nombres,
+                                    ),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green),
+                                  ),
+                                ),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                const Text('Identirficación:'),
-                                Text(
-                                  widget.listadoVisitas[index].identificacion,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Text('Fecha de Entrada:'),
-                                Text(
-                                  widget.listadoVisitas[index].fecha,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Text('Hora de Entrada:'),
-                                Text(
-                                  widget.listadoVisitas[index].hora,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            )
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Row(
+                                  children: [
+                                    const Text('Identirficación:'),
+                                    Text(
+                                      widget
+                                          .listadoVisitas[index].identificacion,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Row(
+                                  children: [
+                                    const Text('Fecha de Entrada:'),
+                                    Text(
+                                      widget.listadoVisitas[index].fecha,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Row(
+                                  children: [
+                                    const Text('Hora de Entrada:'),
+                                    Text(
+                                      widget.listadoVisitas[index].hora,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 5,

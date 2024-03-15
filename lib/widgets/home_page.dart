@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
+import 'package:ieregistrovisitas/widgets/listado.dart';
 import 'package:ieregistrovisitas/widgets/rol_selector.dart';
 import 'package:ieregistrovisitas/widgets/salidas.dart';
 import 'package:intl/intl.dart';
@@ -27,11 +28,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late FToast fToast;
+  late FToast fToast2;
   bool nombreValido = false;
   bool asuntoValido = false;
   bool identificacionValida = false;
   bool guardando = false;
   bool listando = false;
+  bool alistando = false;
   bool tipoVisitante = false;
   final int caracteresIdentificacion = 5;
   final int caracteresNombres = 20;
@@ -75,8 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       _getDate();
     });
-    fToast = FToast();
-    fToast.init(context);
   }
 
   Future<void> guardar() async {
@@ -99,32 +100,34 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  Future<List<RegistroVisitas>?> getListado() async {
-    setState(() => listando = true);
+  Future<List<RegistroVisitas>?> getListado(bool? tipo) async {
+    late final http.Response response;
     try {
       final url = Uri.parse('$urlbase/getRegistroVisitas.php');
-      final response = await http.get(url);
+      if (tipo!) {
+        response = await http.post(url, body: json.encode({'todos': 'si'}));
+      } else {
+        response = await http.get(url);
+      }
       if (response.statusCode == 200) {
         List<dynamic> result = json.decode(response.body);
         List<RegistroVisitas> registros =
             result.map((l) => RegistroVisitas.fromJson(l)).toList();
 
-        setState(() {
-          listando = false;
-        });
         return registros;
       } else {
         throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
       }
     } catch (e) {
       print('Error al obtener el listado: $e');
-      listando = false;
-      setState(() {});
+
       return null;
     }
   }
 
   _showToast() {
+    fToast = FToast();
+    fToast.init(context);
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
@@ -149,11 +152,13 @@ class _MyHomePageState extends State<MyHomePage> {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 3),
+      toastDuration: const Duration(seconds: 2),
     );
   }
 
   _showToastFailed() {
+    fToast2 = FToast();
+    fToast2.init(context);
     Widget toast = Container(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
@@ -178,10 +183,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
 
-    fToast.showToast(
+    fToast2.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 3),
+      toastDuration: const Duration(seconds: 2),
     );
   }
 
@@ -190,7 +195,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.purple,
+            fontSize: 16,
+          ),
+        ),
         actions: [
           ElevatedButton(
             onPressed: () {
@@ -215,15 +226,43 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.green,
             ),
           ),
-          const SizedBox(
-            width: 5,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() => alistando = !alistando);
+                getListado(true).then((value) async {
+                  listadoVisitas = value!;
+                  setState(() => alistando = !alistando);
+                  for (var element in listadoVisitas) {
+                    print(element.identificacion);
+                  }
+                  var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Listado(listadoVisitas: listadoVisitas),
+                    ),
+                  );
+                  print(result);
+                });
+              },
+              child: !alistando
+                  ? const Icon(Icons.list)
+                  : const SpinKitFadingGrid(
+                      color: Colors.lightBlueAccent,
+                      size: 18,
+                    ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () async {
-                getListado().then((value) async {
+                setState(() => listando = !listando);
+                getListado(false).then((value) async {
                   listadoVisitas = value!;
+                  setState(() => listando = !listando);
                   for (var element in listadoVisitas) {
                     print(element.identificacion);
                   }
@@ -365,8 +404,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        shape: const CircleBorder(side: BorderSide()),
-        backgroundColor: Colors.lightBlueAccent,
+        shape: const CircleBorder(side: BorderSide(style: BorderStyle.none)),
+        backgroundColor: const Color.fromARGB(255, 180, 123, 191),
         onPressed: () async {
           if (nombreValido && asuntoValido && tipoVisitante) {
             _getDate();
