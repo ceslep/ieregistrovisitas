@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
+import 'package:ieregistrovisitas/widgets/get_listado.dart';
 import 'package:ieregistrovisitas/widgets/listado.dart';
 import 'package:ieregistrovisitas/widgets/rol_selector.dart';
 import 'package:ieregistrovisitas/widgets/salidas.dart';
@@ -98,31 +99,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     guardando = false;
     setState(() {});
-  }
-
-  Future<List<RegistroVisitas>?> getListado(bool? tipo) async {
-    late final http.Response response;
-    try {
-      final url = Uri.parse('$urlbase/getRegistroVisitas.php');
-      if (tipo!) {
-        response = await http.post(url, body: json.encode({'todos': 'si'}));
-      } else {
-        response = await http.get(url);
-      }
-      if (response.statusCode == 200) {
-        List<dynamic> result = json.decode(response.body);
-        List<RegistroVisitas> registros =
-            result.map((l) => RegistroVisitas.fromJson(l)).toList();
-
-        return registros;
-      } else {
-        throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error al obtener el listado: $e');
-
-      return null;
-    }
   }
 
   _showToast() {
@@ -230,22 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                setState(() => alistando = !alistando);
-                getListado(true).then((value) async {
-                  listadoVisitas = value!;
-                  setState(() => alistando = !alistando);
-                  for (var element in listadoVisitas) {
-                    print(element.identificacion);
-                  }
-                  var result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          Listado(listadoVisitas: listadoVisitas),
-                    ),
-                  );
-                  print(result);
-                });
+                refrescarListado(context);
               },
               child: !alistando
                   ? const Icon(Icons.list)
@@ -425,5 +386,22 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void refrescarListado(BuildContext context) {
+    setState(() => alistando = !alistando);
+    getListado(true).then((value) async {
+      listadoVisitas = value!;
+      setState(() => alistando = !alistando);
+      for (var element in listadoVisitas) {
+        print(element.identificacion);
+      }
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Listado(listadoVisitas: listadoVisitas),
+        ),
+      );
+    });
   }
 }

@@ -1,6 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:ieregistrovisitas/widgets/get_listado.dart';
 
 String decodeHtmlEntities(String text) {
   final unescape = HtmlUnescape();
@@ -16,6 +20,15 @@ class Listado extends StatefulWidget {
 }
 
 class _ListadoState extends State<Listado> {
+  late List<RegistroVisitas> _listadoVisitas;
+  bool _refrescando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _listadoVisitas = widget.listadoVisitas;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,9 +54,35 @@ class _ListadoState extends State<Listado> {
               Navigator.pop(context);
             },
           ),
+          actions: <Widget>[
+            !_refrescando
+                ? IconButton(
+                    onPressed: () async {
+                      _listadoVisitas = [];
+                      setState(() => _refrescando = !_refrescando);
+                      try {
+                        _listadoVisitas =
+                            await getListado(true) as List<RegistroVisitas>;
+                      } catch (e) {
+                        print(e);
+                      }
+
+                      setState(() => _refrescando = !_refrescando);
+                    },
+                    icon: const Icon(Icons.refresh),
+                    color: Colors.white,
+                  )
+                : const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: SpinKitCircle(
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+          ],
         ),
         body: ListView.builder(
-          itemCount: widget.listadoVisitas.length,
+          itemCount: _listadoVisitas.length,
           itemBuilder: (context, index) => Card(
             child: Row(
               children: [
@@ -57,12 +96,38 @@ class _ListadoState extends State<Listado> {
                           padding: const EdgeInsets.all(4.0),
                           child: Text(
                             decodeHtmlEntities(
-                              widget.listadoVisitas[index].nombres,
+                              _listadoVisitas[index].nombres,
                             ),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.blueAccent),
                           ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(
+                            decodeHtmlEntities(
+                              _listadoVisitas[index].tipoVisitante,
+                            ),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          decodeHtmlEntities(
+                            _listadoVisitas[index].asunto,
+                          ),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.brown),
                         ),
                       ),
                       Padding(
@@ -71,7 +136,7 @@ class _ListadoState extends State<Listado> {
                           children: [
                             const Text('Identificación:'),
                             Text(
-                              widget.listadoVisitas[index].identificacion,
+                              _listadoVisitas[index].identificacion,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             )
@@ -84,7 +149,7 @@ class _ListadoState extends State<Listado> {
                           children: [
                             const Text('Fecha de Entrada:'),
                             Text(
-                              widget.listadoVisitas[index].fecha,
+                              _listadoVisitas[index].fecha,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             )
@@ -97,7 +162,7 @@ class _ListadoState extends State<Listado> {
                           children: [
                             const Text('Hora de Entrada:'),
                             Text(
-                              widget.listadoVisitas[index].hora,
+                              _listadoVisitas[index].hora,
                               style:
                                   const TextStyle(fontWeight: FontWeight.bold),
                             )
@@ -109,7 +174,7 @@ class _ListadoState extends State<Listado> {
                         child: Row(
                           children: [
                             const Text('Hora de Salida:'),
-                            Text(widget.listadoVisitas[index].horaSalida!,
+                            Text(_listadoVisitas[index].horaSalida!,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color:
