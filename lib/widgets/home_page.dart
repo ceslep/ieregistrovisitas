@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool listando = false;
   bool alistando = false;
   bool tipoVisitante = false;
+  String selectedRol = "";
   final int caracteresIdentificacion = 5;
   final int caracteresNombres = 20;
   final int caracteresAsunto = 30;
@@ -58,12 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
     identificacion: "",
     tipoVisitante: "",
   );
-  void onRolSelected(String value) {
-    print(value);
-    tipoVisitante = true;
-    registro.tipoVisitante = value;
-    setState(() {});
-  }
 
   void _getDate() {
     fecha = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -179,36 +174,22 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         actions: [
-          ElevatedButton(
+          IconButton(
             onPressed: () {
-              _nombresTextEditingController.text = "";
-              _asuntoTextEditingController.text = "";
-              _identificacionTextEditingController.text = "";
-              tipoVisitante = false;
-              identificacionValida = false;
-              nombreValido = false;
-              asuntoValido = false;
-              registro = RegistroVisitas(
-                fecha: "",
-                hora: "",
-                nombres: "",
-                asunto: "",
-                identificacion: "",
-                tipoVisitante: "",
-              );
+              formReset();
             },
-            child: const Icon(
+            icon: const Icon(
               Icons.note_add_outlined,
               color: Colors.green,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
+            child: IconButton(
               onPressed: () {
                 refrescarListado(context);
               },
-              child: !alistando
+              icon: !alistando
                   ? const Icon(Icons.list)
                   : const SpinKitFadingGrid(
                       color: Colors.lightBlueAccent,
@@ -218,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
+            child: IconButton(
               onPressed: () async {
                 setState(() => listando = !listando);
                 getListado(false).then((value) async {
@@ -237,7 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   print(result);
                 });
               },
-              child: !listando
+              icon: !listando
                   ? const Icon(
                       Icons.outbond,
                       color: Colors.blue,
@@ -356,7 +337,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(10.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: RolSelector(onRolSelected: onRolSelected),
+                  child: RolSelector(
+                      initialValue: selectedRol,
+                      onChanged: (newValue) {
+                        print({"nv": newValue});
+                        tipoVisitante = true;
+                        registro.tipoVisitante = newValue;
+
+                        setState(() => selectedRol = newValue);
+
+                        print({"sr": selectedRol});
+                      }),
                 ),
               ),
               const SizedBox(height: 5),
@@ -373,6 +364,7 @@ class _MyHomePageState extends State<MyHomePage> {
             print(registro.toJson());
             await guardar();
             _showToast();
+            formReset();
           } else {
             _showToastFailed();
           }
@@ -386,6 +378,26 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void formReset() {
+    _nombresTextEditingController.text = "";
+    _asuntoTextEditingController.text = "";
+    _identificacionTextEditingController.text = "";
+    tipoVisitante = false;
+    identificacionValida = false;
+    nombreValido = false;
+    asuntoValido = false;
+    registro = RegistroVisitas(
+      fecha: "",
+      hora: "",
+      nombres: "",
+      asunto: "",
+      identificacion: "",
+      tipoVisitante: "",
+    );
+    print({"frs": selectedRol});
+    setState(() => selectedRol = '');
   }
 
   void refrescarListado(BuildContext context) {
