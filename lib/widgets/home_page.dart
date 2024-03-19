@@ -12,7 +12,6 @@ import 'package:ieregistrovisitas/widgets/listado.dart';
 import 'package:ieregistrovisitas/widgets/rol_selector.dart';
 import 'package:ieregistrovisitas/widgets/salidas.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -241,9 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               const SizedBox(height: 10),
-              CachedNetworkImage(
-                imageUrl: "https://app.iedeoccidente.com/escudoNuevo2.png",
-              ),
+              Image.network('https://app.iedeoccidente.com/escudoNuevo2.png'),
               const SizedBox(height: 1),
               Align(
                 alignment: Alignment.centerLeft,

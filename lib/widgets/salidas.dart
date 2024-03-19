@@ -115,7 +115,7 @@ class _SalidasState extends State<Salidas> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context).size.width / 3,
+                                width: MediaQuery.of(context).size.width / 2,
                                 child: Padding(
                                   padding: const EdgeInsets.all(4.0),
                                   child: Text(
