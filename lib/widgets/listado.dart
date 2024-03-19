@@ -22,6 +22,7 @@ class Listado extends StatefulWidget {
 class _ListadoState extends State<Listado> {
   late List<RegistroVisitas> _listadoVisitas;
   bool _refrescando = false;
+  final TextEditingController _controller = TextEditingController(text: '');
 
   @override
   void initState() {
@@ -82,119 +83,167 @@ class _ListadoState extends State<Listado> {
           ],
         ),
         body: ListView.builder(
-          itemCount: _listadoVisitas.length,
-          itemBuilder: (context, index) => Card(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            itemCount: _listadoVisitas.length + 1,
+            itemBuilder: (context, index) {
+              int index2;
+              if (index == 0) {
+                return SizedBox(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _controller,
+                    autofocus: true,
+                    onChanged: buscarChanged,
+                    decoration: InputDecoration(
+                        labelText: 'Buscar...',
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              _controller.clear();
+                              buscarChanged('');
+                            },
+                            icon: const Icon(Icons.clear))),
+                  ),
+                ));
+              } else {
+                index2 = index - 1;
+                return Card(
+                  child: Row(
                     children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Text(
-                            decodeHtmlEntities(
-                              _listadoVisitas[index].nombres,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 3,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  decodeHtmlEntities(
+                                    _listadoVisitas[index2].nombres,
+                                  ),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blueAccent),
+                                ),
+                              ),
                             ),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueAccent),
-                          ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 3,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: Text(
+                                  decodeHtmlEntities(
+                                    _listadoVisitas[index2].tipoVisitante,
+                                  ),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.purple),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                decodeHtmlEntities(
+                                  _listadoVisitas[index2].asunto,
+                                ),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.brown),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Row(
+                                children: [
+                                  const Text('Identificación:'),
+                                  Text(
+                                    _listadoVisitas[index2].identificacion,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Row(
+                                children: [
+                                  const Text('Fecha de Entrada:'),
+                                  Text(
+                                    _listadoVisitas[index2].fecha,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Row(
+                                children: [
+                                  const Text('Hora de Entrada:'),
+                                  Text(
+                                    _listadoVisitas[index2].hora,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Row(
+                                children: [
+                                  const Text('Hora de Salida:'),
+                                  Text(_listadoVisitas[index2].horaSalida!,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: widget.listadoVisitas[index2]
+                                                    .horaSalida ==
+                                                "00:00:00"
+                                            ? Colors.redAccent
+                                            : Colors.green,
+                                      ))
+                                ],
+                              ),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width / 3,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 4.0),
-                          child: Text(
-                            decodeHtmlEntities(
-                              _listadoVisitas[index].tipoVisitante,
-                            ),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.purple),
-                          ),
-                        ),
+                        width: MediaQuery.of(context).size.width / 5,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          decodeHtmlEntities(
-                            _listadoVisitas[index].asunto,
-                          ),
-                          style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.brown),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          children: [
-                            const Text('Identificación:'),
-                            Text(
-                              _listadoVisitas[index].identificacion,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          children: [
-                            const Text('Fecha de Entrada:'),
-                            Text(
-                              _listadoVisitas[index].fecha,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          children: [
-                            const Text('Hora de Entrada:'),
-                            Text(
-                              _listadoVisitas[index].hora,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          children: [
-                            const Text('Hora de Salida:'),
-                            Text(_listadoVisitas[index].horaSalida!,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      widget.listadoVisitas[index].horaSalida ==
-                                              "00:00:00"
-                                          ? Colors.redAccent
-                                          : Colors.green,
-                                ))
-                          ],
-                        ),
-                      )
                     ],
                   ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 5,
-                ),
-              ],
-            ),
-          ),
-        ));
+                );
+              }
+            }));
+  }
+
+  void buscarChanged(value) async {
+    if (value.length < 3) {
+      if (value.isEmpty) {
+        setState(() => _refrescando = !_refrescando);
+        _listadoVisitas = (await getListado(true))!;
+        setState(() => _refrescando = !_refrescando);
+      }
+      setState(() {});
+    } else {
+      _listadoVisitas = _listadoVisitas
+          .where((element) =>
+              element.nombres.toLowerCase().contains(value.toLowerCase()) ||
+              element.identificacion
+                  .toLowerCase()
+                  .contains(value.toLowerCase()) ||
+              element.tipoVisitante
+                  .toLowerCase()
+                  .contains(value.toLowerCase()) ||
+              element.asunto.toLowerCase().contains(value.toLowerCase()) ||
+              element.fecha.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+      setState(() {});
+    }
   }
 }

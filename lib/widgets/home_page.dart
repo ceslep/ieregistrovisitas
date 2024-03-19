@@ -28,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late Timer timer;
   late FToast fToast;
   late FToast fToast2;
   bool nombreValido = false;
@@ -37,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool listando = false;
   bool alistando = false;
   bool tipoVisitante = false;
-  String selectedRol = "";
+  String selectedRol = '';
   final int caracteresIdentificacion = 5;
   final int caracteresNombres = 20;
   final int caracteresAsunto = 30;
@@ -71,9 +72,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _getDate();
     });
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    timer.cancel();
   }
 
   Future<void> guardar() async {
@@ -252,6 +259,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('Hora: $hora'),
                 ),
               ),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 12.0),
+                  child: Text('Tipo de visitante'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: RolSelector(
+                      initialValue: selectedRol,
+                      onChanged: (newValue) {
+                        print(".....");
+                        print({"nv": newValue});
+                        tipoVisitante = true;
+                        registro.tipoVisitante = newValue;
+
+                        setState(() => selectedRol = newValue);
+
+                        print({"sr": selectedRol});
+                      }),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: TextField(
@@ -326,30 +358,6 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(
                 height: 5,
               ),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text('Tipo de visitante'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: RolSelector(
-                      initialValue: selectedRol,
-                      onChanged: (newValue) {
-                        print({"nv": newValue});
-                        tipoVisitante = true;
-                        registro.tipoVisitante = newValue;
-
-                        setState(() => selectedRol = newValue);
-
-                        print({"sr": selectedRol});
-                      }),
-                ),
-              ),
               const SizedBox(height: 5),
             ],
           ),
@@ -396,8 +404,9 @@ class _MyHomePageState extends State<MyHomePage> {
       identificacion: "",
       tipoVisitante: "",
     );
-    print({"frs": selectedRol});
+
     setState(() => selectedRol = '');
+    print({"frs": selectedRol});
   }
 
   void refrescarListado(BuildContext context) {

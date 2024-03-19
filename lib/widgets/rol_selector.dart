@@ -12,7 +12,7 @@ class RolSelector extends StatefulWidget {
 }
 
 class _RolSelectorState extends State<RolSelector> {
-  late String dropDownValue;
+  String dropDownValue = "";
   List<String> roles = [
     '',
     'Padre de Familia',
@@ -31,8 +31,9 @@ class _RolSelectorState extends State<RolSelector> {
 
   @override
   void initState() {
-    super.initState();
     dropDownValue = widget.initialValue;
+    super.initState();
+    //   dropDownValue = widget.initialValue;
     roles.sort(
       (a, b) => a.compareTo(b),
     );
@@ -40,20 +41,26 @@ class _RolSelectorState extends State<RolSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      alignment: Alignment.centerLeft,
-      dropdownColor: const Color.fromARGB(255, 247, 202, 255),
-      value: dropDownValue,
-      items: roles.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() => dropDownValue = newValue!);
-        widget.onChanged.call(newValue!);
-      },
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: DropdownButton<String>(
+          alignment: Alignment.centerLeft,
+          dropdownColor: const Color.fromARGB(255, 247, 202, 255),
+          value: widget.initialValue,
+          items: roles.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() => dropDownValue = newValue!);
+            widget.onChanged.call(newValue!);
+          },
+        ),
+      ),
     );
   }
 }
