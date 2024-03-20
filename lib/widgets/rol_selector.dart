@@ -46,11 +46,13 @@ class _RolSelectorState extends State<RolSelector> {
       child: SizedBox(
         width: double.infinity,
         child: DropdownButton<String>(
+          autofocus: true,
           alignment: Alignment.centerLeft,
           dropdownColor: const Color.fromARGB(255, 247, 202, 255),
           value: widget.initialValue,
           items: roles.map((String value) {
             return DropdownMenuItem<String>(
+              alignment: Alignment.centerLeft,
               value: value,
               child: Text(value),
             );

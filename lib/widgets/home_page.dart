@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
-import 'package:ieregistrovisitas/widgets/get_listado.dart';
+import 'package:ieregistrovisitas/widgets/api.dart';
 import 'package:ieregistrovisitas/widgets/listado.dart';
 import 'package:ieregistrovisitas/widgets/rol_selector.dart';
 import 'package:ieregistrovisitas/widgets/salidas.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
-import 'package:ieregistrovisitas/widgets/get_listado.dart';
+import 'package:ieregistrovisitas/widgets/api.dart';
 
 String decodeHtmlEntities(String text) {
   final unescape = HtmlUnescape();
@@ -22,6 +22,7 @@ class Listado extends StatefulWidget {
 class _ListadoState extends State<Listado> {
   late List<RegistroVisitas> _listadoVisitas;
   bool _refrescando = false;
+  bool guardandoSalida = false;
   final TextEditingController _controller = TextEditingController(text: '');
 
   @override
@@ -215,8 +216,33 @@ class _ListadoState extends State<Listado> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 5,
                       ),
-                      ElevatedButton(
-                          onPressed: () {}, child: const Icon(Icons.save))
+                      _listadoVisitas[index2].horaSalida == "00:00:00"
+                          ? ElevatedButton(
+                              onPressed: () async {
+                                setState(
+                                    () => guardandoSalida = !guardandoSalida);
+                                await guardarSalida(_listadoVisitas[index2].id);
+                                setState(
+                                    () => guardandoSalida = !guardandoSalida);
+                                setState(() => _refrescando = !_refrescando);
+                                _listadoVisitas = (await getListado(true))!;
+                                setState(() => _refrescando = !_refrescando);
+                              },
+                              style: const ButtonStyle(
+                                  shape: MaterialStatePropertyAll(CircleBorder(
+                                      side:
+                                          BorderSide(style: BorderStyle.none))),
+                                  elevation: MaterialStatePropertyAll(10),
+                                  animationDuration:
+                                      Duration(milliseconds: 250)),
+                              child: !guardandoSalida
+                                  ? const Icon(Icons.save)
+                                  : const SpinKitCircle(
+                                      color: Colors.green,
+                                      size: 14,
+                                    ),
+                            )
+                          : const SizedBox()
                     ],
                   ),
                 );

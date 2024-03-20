@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ieregistrovisitas/widgets/api.dart';
 import 'package:intl/intl.dart';
 
 const String urlbase = 'https://app.iedeoccidente.com';
@@ -53,28 +54,6 @@ class _SalidasState extends State<Salidas> {
       gravity: ToastGravity.BOTTOM,
       toastDuration: const Duration(seconds: 3),
     );
-  }
-
-  Future<void> guardarSalida(String? idVisita) async {
-    setState(() => guardando = !guardando);
-    final url = Uri.parse('$urlbase/guardarRegistroSalida.php');
-    final bodyData = json.encode({'id': idVisita});
-    try {
-      final response = await http.post(url, body: bodyData);
-      if (response.statusCode == 200) {
-        var respuesta = json.decode(response.body);
-        if (respuesta["msg"] == "exito") {
-          _showToast();
-        } else {
-          throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
-        }
-      } else {
-        throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error al guardar la salida: $error');
-    }
-    setState(() => guardando = !guardando);
   }
 
   @override
@@ -184,9 +163,11 @@ class _SalidasState extends State<Salidas> {
                               widget.listadoVisitas[index].horaSalida =
                                   DateFormat('hh:mm:ss').format(DateTime.now());
                               setState(() {});
+                              setState(() => guardando = !guardando);
                               await guardarSalida(
                                   widget.listadoVisitas[index].id);
-
+                              _showToast();
+                              setState(() => guardando = !guardando);
                               // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                             },
