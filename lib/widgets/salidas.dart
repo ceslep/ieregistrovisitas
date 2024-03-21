@@ -1,8 +1,6 @@
 // ignore_for_file: avoid_print
 
-import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:ieregistrovisitas/models/modelo_registro.dart';
 import 'package:html_unescape/html_unescape.dart';
